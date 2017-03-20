@@ -62,6 +62,16 @@ slackslime.tokens.forEach(function(token, i) {
             return;
         }
 
+
+        // look for mentions and convert user handles to plaintext
+
+        var re = RegExp("((<@)[^\>]+)>", 'g');
+
+        if(re.test(data.text)) {
+            data.text = data.text.replace(re, function getUserName(x) { return '@' + self.getUser(x.substring(2, x.length - 1)).name; });
+        }
+
+
         if(user) {
             data.username = user.name;
             data.iconUrl = user.profile.image_48;
@@ -155,6 +165,11 @@ slackslime.tokens.forEach(function(token, i) {
         });
     }
 
+
+// var onUser = function(self, data) {
+//     var user = self.getUser();
+        
+// }
 
     var onFileShare = function(self, data) {
         // send the shared file to other teams
