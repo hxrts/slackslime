@@ -5,12 +5,12 @@ Slack Slime
 
 cross-team organisation and communication on Slack
 
-![Slack Slime](slackslime.png =420x)
+![Slack Slime](slackslime.png | width=420)
 
 # What it Does
 Syncs a channel between multiple slack teams.
 
-![Screenshot](screenshot.png =500x)
+![Screenshot](screenshot.png | with=500)
 
 # Setup
 - *Slack Slime runs from the command line, not via module.exports*
