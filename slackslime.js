@@ -47,7 +47,7 @@ slackslime.tokens.forEach(function(token, i) {
     slacks[i].on('message', function(data) {
 
 
-        // handle file_share message subtypes instead of file_shared events because Slack's API doesn't seem to send much info with file_shared anymore.
+        // handle file_share message subtypes instead of file_shared events because Slack's API doesn't seem to send much info with file_shared anymore
         if(data.subtype === 'file_share') {
             onFileShare(this, data);
             return;
@@ -62,19 +62,19 @@ slackslime.tokens.forEach(function(token, i) {
             return;
         }
 
-
-        // look for mentions and convert user handles to plaintext
-
-        var re = RegExp("((<@)[^\>]+)>", 'g');
-
-        if(re.test(data.text)) {
-            data.text = data.text.replace(re, function getUserName(x) { return '@' + self.getUser(x.substring(2, x.length - 1)).name; });
-        }
-
-
+        // user name
         if(user) {
             data.username = user.name;
             data.iconUrl = user.profile.image_48;
+        }
+
+        // look for mentions and convert user handles to plaintext
+        var re = RegExp("((<@)[^\>]+)>", 'g');
+
+        if(re.test(data.text)) {
+            data.text = data.text.replace(re, function getUserName(userString) {
+                return '@' + self.getUser(userString.substring(2, userString.length - 1)).name;
+            });
         }
 
         if(data.text.charAt(0) === '!') {
@@ -92,34 +92,33 @@ slackslime.tokens.forEach(function(token, i) {
                             if(d.ok) {
                                 d.channel.members.forEach(function(user) {
                                     if(s.getUser(user)) {
-                                        var status = ':question:';
+                                        var status = ':question: ';
                                         userCount++;
 
                                         if(s.getUser(user).presence === 'active') {
-                                            status = ':large_blue_circle:';
+                                            status = ':coffee: ';
                                             activeCount++;
                                         }
 
                                         if(s.getUser(user).presence === 'away') {
-                                            status = ':white_circle:';
+                                            status = ':zzz: ';
                                             awayCount++;
                                         }
 
-                                        message += status + ' `' + s.slackData.team.name + '` ' + s.getUser(user).name + '\n';
+                                        message += status + ' `' + (s.slackData.team.name + '                ').substring(0, 16) + '` @' + s.getUser(user).name + '\n';
                                     }
                                 })
                             }
                         });
                     });
 
-                    self.sendPM(data.user,
-                            '```Gathering a list of users, please wait...\nBlue = Active   White = Away```'
-                            );
-
                     setTimeout(function() {
+
                         self.sendPM(data.user,
-                            message + '```Active: ' + activeCount + '   Total: ' + userCount + '   Teams: '
-                            + slackslime.connectedTeams + '```'
+                            message + '––––––––––––––––––––––––\n' +
+                            '*Active:* ' + activeCount + '     ' +
+                            '*Total:* '  + userCount   + '     ' +
+                            '*Teams:* '  + slackslime.connectedTeams
                             );
                     }, 2000); // 2 second default wait
                     break;
@@ -144,6 +143,7 @@ slackslime.tokens.forEach(function(token, i) {
             })
         }
     });
+
 
     var downloadSlackFile = function(options, callback) {
         var stream = request({
