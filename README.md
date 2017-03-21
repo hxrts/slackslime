@@ -22,10 +22,10 @@ Sync channels between multiple lack teams.
 - [ ] link two channels with different names
 - [ ] multiple syncs
 - [ ] emojis?
-- [ ] typing status?
 - [ ] deleting messages
 - [ ] editing messages
 - [ ] stability testing
+- [x] typing status
 
 # License
 Slack Slime is Licensed under the terms of the [MIT license](LICENSE).
