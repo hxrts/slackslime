@@ -1,14 +1,11 @@
-Slack Slime
+Slack Slime [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/franciskim/slackslime/blob/master/LICENSE) [![Current Version](https://img.shields.io/npm/v/slackslime.svg?style=flat-square)](https://npmjs.com/slackslime)
 ===========
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/franciskim/slackslime/blob/master/LICENSE) [![Current Version](https://img.shields.io/npm/v/slackslime.svg?style=flat-square)](https://npmjs.com/slackslime)
-
-cross-team organisation and communication on Slack
+Sync channels between multiple lack teams.
 
 <img src="slackslime.png" width="420">
 
-# What it Does
-Syncs a channel between multiple slack teams.
+# Example output
 
 <img src="screenshot.png" width="500">
 
@@ -31,4 +28,4 @@ Syncs a channel between multiple slack teams.
 - [ ] stability testing
 
 # License
-Licensed under the terms of the [MIT license](LICENSE).
+Slack Slime is Licensed under the terms of the [MIT license](LICENSE).

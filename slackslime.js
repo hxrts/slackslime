@@ -44,8 +44,27 @@ slackslime.tokens.forEach(function(token, i) {
         slackslime.connectedTeams--;
     });
 
-    slacks[i].on('message', function(data) {
 
+    // send typing notifications
+    slacks[i].on('user_typing', function(data) {
+
+        var self = this;
+        var channel = self.getChannel(data.channel);
+
+        slacks.forEach(function(slack) {
+            if(slack.token !== self.token) {
+
+                var channelMatch = slack.slackData.channels.filter(function (channelRemote) {
+                    return channel.name === channelRemote.name;
+                })[0];
+
+                slack.sendTyping(channelMatch.id);
+            }
+        })
+    });
+
+
+    slacks[i].on('message', function(data) {
 
         // handle file_share message subtypes instead of file_shared events because Slack's API doesn't seem to send much info with file_shared anymore
         if(data.subtype === 'file_share') {
