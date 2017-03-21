@@ -166,11 +166,6 @@ slackslime.tokens.forEach(function(token, i) {
     }
 
 
-// var onUser = function(self, data) {
-//     var user = self.getUser();
-        
-// }
-
     var onFileShare = function(self, data) {
         // send the shared file to other teams
         // shared files in public channels already have a public URL (!)
