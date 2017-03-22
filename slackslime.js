@@ -17,8 +17,8 @@ var request = require('request');
 // setup
 //------
 
-// create temporary dir for file uploads (insecure, don't share sensitive info)
-var tmpobj = tmp.dirSync({ prefix: 'slackslime_' });
+// create temporary directory for file uploads (obv. this is insecure, so please don't share sensitive info)
+var tmpobj = tmp.dirSync({ template: '/tmp/tmp-slackslime-XXXXXXXXX' });
 
 
 // command line args
