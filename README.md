@@ -30,6 +30,7 @@ Sync channels between multiple Slack teams.
 - [ ] emojis?
 - [ ] threads??
 - [ ] change !list feature into slash command
+- [ ] Use config file instead of command-line for running
 
 # License
 Slack Slime is Licensed under the terms of the [MIT license](LICENSE).
