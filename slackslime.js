@@ -1,62 +1,105 @@
-/*
- https://github.com/franciskim/slackslime
- by Francis Kim @ franciskim.co
- 
- how to run from the shell:
- nodejs [channel name] [RTM API token 1] [RTM API token 2] [RTM API token 3] [more tokens]
- 
- for example:
- nodejs devchat xoxb-1111111111-xxx xoxb-2222222222-xxx xoxb-3333333333-xxx
- 
- or for PM2:
- pm2 start slackslime.js -- devchat xoxb-1111111111-xxx xoxb-2222222222-xxx xoxb-3333333333-xxx
-*/
 
+// original script by Francis Kim @ franciskim.co
+// https://github.com/franciskim/slackslime
+
+//--------
+// imports
+//--------
+
+var _ = require('lodash');
 var slackAPI = require('slackbotapi');
 var tmp = require('tmp');
 var fs = require('fs');
 var request = require('request');
 
+
+//------
+// setup
+//------
+
 // create temporary directory for file uploads (obv. this is insecure, so please don't share sensitive info)
 var tmpobj = tmp.dirSync({ template: '/tmp/tmp-slackslime-XXXXXXXXX' });
 
+
+// command line args
 var slackslime = {
     channelName: process.argv[2],
     tokens: process.argv.slice(3),
     connectedTeams: 0
 };
 
-var slacks = new Array(); // slack connections get stored here
+
+// create slack connection store
+var slacks = new Array();
+
+
+//----------------
+// main event loop
+//----------------
 
 slackslime.tokens.forEach(function(token, i) {
+
+    //-------------------
+    // manage connections
+    //-------------------
+
+    // initialize
     slacks[i] = new slackAPI({
         'token': token,
-        'logging': true, // necessary for debug output
+        'logging': false,  // for output debug
         'autoReconnect': true
     });
 
+    // session info
     slacks[i].on('hello', function(data) {
-        this.channelId = this.getChannel(slackslime.channelName).id;
+
+        var helloInstance = this.slackData.team.name + ' / ' + slackslime.channelName;
+
+        console.log('\n' + _.repeat(i, helloInstance.length) + '\n' + helloInstance + '\n' + _.repeat(i, helloInstance.length) + '\n');
+
+        if(this.getChannel(slackslime.channelName)) {
+            this.channelId = this.getChannel(slackslime.channelName).id;
+            this.channelType = 'public';
+            console.log('connecting to public channel ' + this.channelId + '\n');
+        } else {
+            this.channelId = this.getGroup(slackslime.channelName).id;
+            this.channelType = 'private';
+            console.log('connecting to private channel ' + this.channelId + '\n');
+        }
         slackslime.connectedTeams++;
     });
 
+    // close connection
     slacks[i].on('close', function(data) {
         slackslime.connectedTeams--;
     });
 
 
-    // send typing notifications
+    //---------------------
+    // typing notifications
+    //---------------------
+
     slacks[i].on('user_typing', function(data) {
 
         var self = this;
-        var channel = self.getChannel(data.channel);
 
         slacks.forEach(function(slack) {
+
             if(slack.token !== self.token) {
 
-                var channelMatch = slack.slackData.channels.filter(function (channelRemote) {
-                    return channel.name === channelRemote.name;
-                })[0];
+                if(self.channelType === 'public') {
+
+                    var channelMatch = slack.slackData.channels.filter(function (channelRemote) {
+                        return channelRemote.name === slackslime.channelName;
+                    })[0];
+
+                } else {
+
+                    var channelMatch = slack.slackData.groups.filter(function (channelRemote) {
+                        return channelRemote.name === slackslime.channelName;
+                    })[0];
+
+                }
 
                 slack.sendTyping(channelMatch.id);
             }
@@ -64,9 +107,14 @@ slackslime.tokens.forEach(function(token, i) {
     });
 
 
+    //--------------
+    // message logic
+    //--------------
+
     slacks[i].on('message', function(data) {
 
-        // handle file_share message subtypes instead of file_shared events because Slack's API doesn't seem to send much info with file_shared anymore
+        // handle file_share message subtypes instead of file_shared events
+        // Slack's API doesn't send much info with file_shared anymore
         if(data.subtype === 'file_share') {
             onFileShare(this, data);
             return;
@@ -75,13 +123,18 @@ slackslime.tokens.forEach(function(token, i) {
         var self = this;
         var user = self.getUser(data.user);
         var teamName = self.slackData.team.name;
-        var channel = self.getChannel(data.channel);
+
+        if(self.channelType === 'public') {
+            var channel = self.getChannel(data.channel);
+        } else {
+            var channel = self.getGroup(data.channel);
+        }
 
         if(typeof data.text === 'undefined' || data.subtype === 'bot_message' || !channel || channel.name !== slackslime.channelName) {
             return;
         }
 
-        // user name
+        // parse user names
         if(user) {
             data.username = user.name;
             data.iconUrl = user.profile.image_48;
@@ -96,13 +149,14 @@ slackslime.tokens.forEach(function(token, i) {
             });
         }
 
-        if(data.text.charAt(0) === '!') {
-            // bot/channel commands should go here
-            // split the command and its arguments into an array
+        // messaging logic
+        if(data.text.charAt(0) === '!') {  // bot / channel commands should go here
+
+            // split command and its arguments into an array
             var command = data.text.substring(1).split(' ');
 
             switch(command[0].toLowerCase()) {
-                case "list":
+                case 'list':
                     // send a list of all users on every chat and send via DM/PM
                     var message = '', awayCount = 0, activeCount = 0, userCount = 0;
 
@@ -124,7 +178,7 @@ slackslime.tokens.forEach(function(token, i) {
                                             awayCount++;
                                         }
 
-                                        message += status + ' `' + (s.slackData.team.name + '                ').substring(0, 16) + '` @' + s.getUser(user).name + '\n';
+                                        message += status + ' `' + (s.slackData.team.name + ' '.repeat(16)).substring(0, 16) + '` @' + s.getUser(user).name + '\n';
                                     }
                                 })
                             }
@@ -132,8 +186,8 @@ slackslime.tokens.forEach(function(token, i) {
                     });
 
                     setTimeout(function() {
-
-                        self.sendPM(data.user,
+                        self.sendPM(
+                            data.user,
                             message + '––––––––––––––––––––––––\n' +
                             '*Active:* ' + activeCount + '     ' +
                             '*Total:* '  + userCount   + '     ' +
@@ -144,8 +198,8 @@ slackslime.tokens.forEach(function(token, i) {
             }
         }
 
-        else if(!data.subtype) {
-            // this is a normal user message, send to other teams
+        else if(!data.subtype) { // send normal user message to other team(s)
+
             var message = {
                 channel: '#' + slackslime.channelName,
                 text: data.text,
@@ -164,6 +218,11 @@ slackslime.tokens.forEach(function(token, i) {
     });
 
 
+    //--------------
+    // file handling
+    //--------------
+
+    // download handler
     var downloadSlackFile = function(options, callback) {
         var stream = request({
             url: options.url,
@@ -174,6 +233,7 @@ slackslime.tokens.forEach(function(token, i) {
         stream.on('finish', callback);
     }
 
+    // upload handler
     var uploadSlackFile = function(upload_options, callback) {
         // this method is here because slackbotapi library can't seem to handle file uploads
         request.post({
@@ -185,23 +245,28 @@ slackslime.tokens.forEach(function(token, i) {
     }
 
 
+    // send shared file to other team's public shared store
     var onFileShare = function(self, data) {
-        // send the shared file to other teams
         // shared files in public channels already have a public URL (!)
         // todo: ask if the file should be shared
         var user = self.getUser(data.file.user);
         var teamName = self.slackData.team.name;
-        var channel = self.getChannel(data.file.channels.splice(-1)[0]); // https://api.slack.com/types/file
-        
+
+        if(self.channelType === 'public') {
+            var channel = self.getChannel(data.file.channels.splice(-1)[0]);  // https://api.slack.com/types/file
+        } else {
+            var channel = self.getGroup(data.file.channels.splice(-1)[0]);  // https://api.slack.com/types/file
+        }
+
         if(channel.name !== slackslime.channelName) {
             return;
         }
 
         if(user.is_bot) {
-            return; //otherwise we risk an infinite loop
+            return;  //otherwise we risk an infinite loop
         }
 
-        if(user) { // unfortunately image uploads don't support as-user avatar changes
+        if(user) {  // unfortunately image uploads don't support as-user avatar changes
             data.username = user.name;
             data.iconUrl = user.profile.image_48;
         }
@@ -213,27 +278,24 @@ slackslime.tokens.forEach(function(token, i) {
             token: self.token
         };
 
-
-
         var downloaded_file_path = downloadSlackFile(download_options, function() {
 
-            var initial_comment = "From " + data.username + ' @ ' +  teamName;
+            var initial_comment = 'From ' + data.username + ' @ ' +  teamName;
             if(data.file.comments_count > 0) {
               initial_comment += ":\n \"" + data.file.initial_comment.comment + "\"";
             }
 
             var upload_options = {
-                channels: "#" + slackslime.channelName,
+                channels: '#' + slackslime.channelName,
                 filename: data.file.name,
-                title: data.username + ' @ ' + teamName + " posted: " + data.file.name,
-                filetype: "auto",
+                title: data.username + ' @ ' + teamName + ' posted: ' + data.file.name,
+                filetype: 'auto',
                 initial_comment: initial_comment,
                 file: fs.createReadStream(download_options.directory + download_options.filename)
             };
 
-
             slacks.forEach(function(slack) {
-                if(slack.token !== self.token) { // so we don't send it to ourselves
+                if(slack.token !== self.token) {  // so we don't send it to ourselves
 
                     var this_upload_options = upload_options;
                     this_upload_options['token'] = slack.token;
@@ -243,7 +305,8 @@ slackslime.tokens.forEach(function(token, i) {
                 }
             })
 
-        });
+        });  // downloaded_file_path
 
-    }
+    }  // slacks[i].on('message', ...)
+
 });
