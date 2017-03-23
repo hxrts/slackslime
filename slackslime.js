@@ -178,7 +178,7 @@ slackslime.tokens.forEach(function(token, i) {
                                             awayCount++;
                                         }
 
-                                        message += status + ' `' + (s.slackData.team.name + ' '.repeat(16)).substring(0, 16) + '` @' + s.getUser(user).name + '\n';
+                                        message += status + ' `' + (s.slackData.team.name + _.repeat(' ', 16)).substring(0, 16) + '` @' + s.getUser(user).name + '\n';
                                     }
                                 })
                             }
@@ -255,7 +255,7 @@ slackslime.tokens.forEach(function(token, i) {
         if(self.channelType === 'public') {
             var channel = self.getChannel(data.file.channels.splice(-1)[0]);  // https://api.slack.com/types/file
         } else {
-            var channel = self.getGroup(data.file.channels.splice(-1)[0]);  // https://api.slack.com/types/file
+            var channel = self.getGroup(data.file.channels.splice(-1)[0]);
         }
 
         if(channel.name !== slackslime.channelName) {
@@ -309,4 +309,4 @@ slackslime.tokens.forEach(function(token, i) {
 
     }  // slacks[i].on('message', ...)
 
-});
+});  // slackslime.tokens.forEach(function(token, i), ...)
