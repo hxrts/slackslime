@@ -35,23 +35,27 @@ if(!('configfile' in argv)) {
 
   wormhole_config.description = "command-line portal for " + channelName;
 
-  wormhole_config.portals = [];
+  wormhole_config.channelName = channelName;
+
+  wormhole_config.tokens = [];
   tokens.forEach(function(t) {
-    wormhole_config.portals.push({ 'token': t, 'channelName': channelName })
+    wormhole_config.tokens.push(t);
   });
 
-  wormhole_config.tmpDir = tmpDir;
 
-  wormholes.push(new Wormhole(wormhole_config));
+  wormholes.push(new Wormhole(wormhole_config, { "tmpDir": tmpDir }));
 
 } else {
   var config = JSON.parse(fs.readFileSync(argv.configfile, 'utf8'))
+  _.forEach(config.wormholes, function(wormhole_config, name) {
 
-  _.forEach(config.wormholes, function(name, whconfig) {
+    // map token names onto actual otken
+    wormhole_config.tokens = _.map(wormhole_config.token_names, function(token_name) {
+      return config.token_names[token_name];
+    });
 
-    
+    wormholes.push(new Wormhole(wormhole_config, { "tmpDir": tmpDir }));
   });
-
 
 
 } 
