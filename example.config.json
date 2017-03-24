@@ -1,0 +1,19 @@
+{
+  "name": "example wormhole setup",
+  "token_names": {
+    "token_name_1":  "xoxb-TOKEN-HERE",
+    "token_name_2": "xoxb-ANOTHER-TOKEN-HERE",
+    "token_name_3": "xoxb-YET-ANOTHER-TOKEN-HERE"
+  },
+  "wormholes": {
+    "randomWormhole": {
+      "channelName": "_random",
+      "token_names": [ "token_name_1", "token_name_2" ]
+    },
+    "banter2Wormhole": {
+      "channelName": "_banter",
+      "token_names": [ "token_name_1", "token_name_2", "token_name_3" ]
+    }
+  }
+}
+
