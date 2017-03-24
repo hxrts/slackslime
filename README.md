@@ -24,13 +24,13 @@ Sync channels between multiple Slack teams.
 - [ ] fix bug where username & gravatar stop propogating after unspecified time
 - [ ] @mention lookups
 - [ ] link two channels with different names
-- [ ] multiple syncs
+- [X] multiple syncs
 - [ ] deleting messages / files
 - [ ] editing messages / files
 - [ ] emojis?
 - [ ] threads??
 - [ ] change !list feature into slash command
-- [ ] Use config file instead of command-line for running
+- [X] Use config file instead of command-line for running
 
 # License
 Slack Slime is Licensed under the terms of the [MIT license](LICENSE).
