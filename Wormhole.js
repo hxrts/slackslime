@@ -254,7 +254,7 @@ class Wormhole {
 
             var download_options = {
                 url: data.file.url_private,
-                directory: context.slackslime.tmpDir,
+                directory: context.config.tmpDir,
                 filename: data.file.name,
                 token: self.token
             };
@@ -290,7 +290,7 @@ class Wormhole {
 
         }  // slacks[i].on('message', ...)
 
-    });  // context.slackslime.tokens.forEach(function(token, i), ...)
+    });  // context.config.tokens.forEach(function(token, i), ...)
 
   }
 }
