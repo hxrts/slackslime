@@ -18,7 +18,7 @@ Sync channels between multiple Slack teams.
 # Setup
 
 - Using config (can handle more than one wormhole at a time):
-  - `node slackslime.js --configfile myConfig.json`
+  - `node --use-strict slackslime.js --configfile myConfig.json`
   - See `example.config.json` for example config file format.
   
 - Using command-line (one wormhole):

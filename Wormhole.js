@@ -38,7 +38,7 @@ class Wormhole {
 
             var helloInstance = this.slackData.team.name + ' / ' + context.wormhole.channelName;
 
-            console.log('\n' + _.repeat(i, helloInstance.length) + '\n' + helloInstance + '\n' + _.repeat(i, helloInstance.length) + '\n');
+            console.log('\n' + _.repeat('-', helloInstance.length) + '\n' + helloInstance + '\n' + _.repeat('-', helloInstance.length) + '\n');
 
             if(this.getChannel(context.wormhole.channelName)) {
                 this.channelId = this.getChannel(context.wormhole.channelName).id;
@@ -126,7 +126,7 @@ class Wormhole {
             // look for mentions and convert user handles to plaintext
             var re = RegExp("((<@)[^\>]+)>", 'g');
 
-            if(re.test(data.text)) {
+            if(re.test(data.text) && user) {
                 data.text = data.text.replace(re, function getUserName(userString) {
                     return '@' + self.getUser(userString.substring(2, userString.length - 1)).name;
                 });

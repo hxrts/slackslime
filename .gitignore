@@ -1,3 +1,5 @@
 node_modules
 sync*.sh
 *.swp
+config.json
+.DS_Store
