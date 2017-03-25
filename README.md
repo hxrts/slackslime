@@ -50,6 +50,7 @@ w.run(); // will create a wormhole!
 - [ ] threads??
 - [ ] change !list feature into slash command
 - [X] Use config file instead of command-line for running
+- [ ] people join/leave channels!
 
 # License
 Slack Slime is Licensed under the terms of the [MIT license](LICENSE).
