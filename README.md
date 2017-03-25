@@ -11,13 +11,32 @@ Sync channels between multiple Slack teams.
 
 <img src="screenshot.png" width="500">
 
-# Setup
-- *Slack Slime runs from the command line, not via module.exports*
+# Install
 - 2+ Slack teams & their RTM API tokens - get your token at https://my.slack.com/services/new/bot
-- `npm install slackslime`
-- `nodejs slackslime.js [channel name] [RTM API token 1] [RTM API token 2] [RTM API token 3] [more tokens]`
-- eg: `nodejs devchat xoxb-1111111111-xxx xoxb-2222222222-xxx xoxb-3333333333-xxx`
-- or with `PM2: pm2 start slackslime.js -- devchat xoxb-1111111111-xxx xoxb-2222222222-xxx xoxb-3333333333-xxx`
+- `npm install`
+
+# Setup
+
+- Using config (can handle more than one wormhole at a time):
+  - `node slackslime.js --configfile myConfig.json`
+  - See `example.config.json` for example config file format.
+  
+- Using command-line (one wormhole):
+  - `nodejs slackslime.js [channel name] [RTM API token 1] [RTM API token 2] [RTM API token 3] [more tokens]`
+  - Eg: `nodejs devchat xoxb-1111111111-xxx xoxb-2222222222-xxx xoxb-3333333333-xxx`
+  - Or with `PM2: pm2 start slackslime.js -- devchat xoxb-1111111111-xxx xoxb-2222222222-xxx xoxb-3333333333-xxx`
+
+
+# Using Wormhole.js 
+```
+var Wormhole = require('./Wormhole');
+var options = {
+  'channelName' : 'random',
+  'tokens': ['xoxb-123', 'xoxb-456']
+};
+var w = new Wormhole(options, { tmpDir: "/temp/file/directory" });
+w.run(); // will create a wormhole!
+```
 
 # To Do
 - [X] add support for private groups
